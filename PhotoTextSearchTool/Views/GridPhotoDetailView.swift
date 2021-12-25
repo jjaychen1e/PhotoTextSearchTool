@@ -93,6 +93,7 @@ struct GridPhotoDetailView: View {
                         let valid =  filterHelper.match(source: String(text), condition: queryKeywords)
                         
                         Text(text)
+                            .lineLimit(1)
                             .padding(.all, 4)
                             .border(valid ? Color.red : Color.accentColor, width: valid ? 2.0 : 1.0)
                     }

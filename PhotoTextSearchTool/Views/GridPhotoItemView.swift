@@ -12,8 +12,6 @@ struct GridPhotoItemView: View {
     @State var photo: Photo
     @Binding var selectedPhoto: Photo?
     
-    @ObservedObject var reloadHelper = ReloadHelper()
-    
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -58,10 +56,10 @@ struct GridPhotoItemView: View {
                 }
             }
             .onTapGesture {
-                selectedPhoto = photo
+                selectedPhoto = nil
                 // One frame later..
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 / 60.0) {
-                    reloadHelper.reloadView() // I don't know why, SwiftUI sucks.
+                    selectedPhoto = photo // I don't know why, SwiftUI sucks.
                 }
             }
         }

@@ -56,10 +56,14 @@ struct PhotoGridView: View {
                 ScrollView {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 250, maximum: 300))]) {
                         ForEach(photos, id: \.self) { photo in
-                            let filterHelper = FilterHelper(isRegexMode: isRegexMode.wrappedValue, isMulticonditionMode: isMulticonditionMode.wrappedValue, multiconditionMode: multiconditionMode.wrappedValue)
-                            let sources = photo.texts?.split(separator: splitMagicCharacter) ?? []
-                            let valid =  filterHelper.match(source: sources.map { String($0) }, condition: queryKeywords)
-                            if valid {
+                            if queryKeywords.contains { $0 != " "} {
+                                let filterHelper = FilterHelper(isRegexMode: isRegexMode.wrappedValue, isMulticonditionMode: isMulticonditionMode.wrappedValue, multiconditionMode: multiconditionMode.wrappedValue)
+                                let sources = photo.texts?.split(separator: splitMagicCharacter) ?? []
+                                let valid =  filterHelper.match(source: sources.map { String($0) }, condition: queryKeywords)
+                                if valid {
+                                    GridPhotoItemView(photo: photo, selectedPhoto: $selectedPhoto)
+                                }
+                            } else {
                                 GridPhotoItemView(photo: photo, selectedPhoto: $selectedPhoto)
                             }
                         }
@@ -113,7 +117,7 @@ struct PhotoGridView: View {
             }
         }
         .padding(.all, 8)
-        .onDrop(of: [.fileURL], delegate: dropDelegate)
+        .onDrop(of: !queryKeywords.contains { $0 != " "} ? [.fileURL] : [], delegate: dropDelegate)
     }
 }
 
@@ -166,7 +170,9 @@ struct PhotoFileDropDelegate: DropDelegate {
                                                     let joinedTexts = texts.joined(separator: String(splitMagicCharacter))
                                                     if joinedTexts != "" {
                                                         photo.texts = joinedTexts
-                                                        try? managedObjectContext.save()
+                                                        DispatchQueue.main.async {
+                                                            try? managedObjectContext.save()
+                                                        }
                                                     }
                                                 }
                                             })
